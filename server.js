@@ -16,6 +16,9 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
 app.use(fileUpload({
     createParentPath: true,
     limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
@@ -1249,3 +1252,4 @@ app.listen(PORT, () => {
 ╚═══════════════════════════════════════════════════════╝
     `);
 });
+
