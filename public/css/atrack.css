@@ -1,0 +1,833 @@
+/* ==================== ATRACK ATTENDANCE TRACKER STYLES ==================== */
+
+.atrack-header {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.btn-nav-link {
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-nav-link:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.btn-nav-link svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* ==================== ATTENDANCE HERO ==================== */
+
+.attendance-hero {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+    flex-wrap: wrap;
+}
+
+.attendance-circle {
+    position: relative;
+    width: 200px;
+    height: 200px;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-bg {
+    fill: none;
+    stroke: #e5e7eb;
+    stroke-width: 12;
+}
+
+.progress-ring-fill {
+    fill: none;
+    stroke: #10b981;
+    stroke-width: 12;
+    stroke-linecap: round;
+    stroke-dasharray: 534.07;
+    stroke-dashoffset: 534.07;
+    transition: stroke-dashoffset 1s ease-in-out;
+}
+
+.attendance-percentage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.percentage-value {
+    font-size: 48px;
+    font-weight: 700;
+    color: #10b981;
+    margin-bottom: 4px;
+}
+
+.percentage-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.attendance-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+.summary-item {
+    text-align: center;
+    padding: 20px;
+    background: var(--bg-color);
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.summary-item.present {
+    border-left-color: #10b981;
+}
+
+.summary-item.absent {
+    border-left-color: #ef4444;
+}
+
+.summary-item.cancelled {
+    border-left-color: #f59e0b;
+}
+
+.summary-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.summary-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* ==================== WEEK SELECTOR ==================== */
+
+.calendar-section {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+}
+
+.month-navigator {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.month-navigator span {
+    font-size: 16px;
+    font-weight: 600;
+    min-width: 150px;
+    text-align: center;
+    color: var(--text-primary);
+}
+
+.month-navigator .btn-icon {
+    width: 36px;
+    height: 36px;
+    border: 2px solid var(--border-color);
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.month-navigator .btn-icon:hover {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.month-navigator .btn-icon svg {
+    width: 20px;
+    height: 20px;
+    color: var(--text-primary);
+}
+
+/* Calendar Grid */
+.attendance-calendar {
+    margin-top: 20px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 12px 8px;
+    text-transform: uppercase;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-color);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    padding: 8px;
+    border: 2px solid transparent;
+}
+
+.calendar-day:hover {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: #10b981;
+    transform: scale(1.05);
+}
+
+.calendar-day.today {
+    background: #10b981;
+    color: white;
+    font-weight: 600;
+}
+
+.calendar-day.selected {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: #10b981;
+    font-weight: 600;
+}
+
+.calendar-day.other-month {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.calendar-day.has-attendance {
+    border: 2px solid #10b981;
+}
+
+.calendar-day-number {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.attendance-indicator {
+    display: flex;
+    gap: 2px;
+    margin-top: 4px;
+}
+
+.attendance-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #10b981;
+}
+
+.attendance-dot.absent {
+    background: #ef4444;
+}
+
+.attendance-dot.cancelled {
+    background: #f59e0b;
+}
+
+.calendar-day-attendance {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+}
+
+.calendar-day-attendance.partial {
+    background: #f59e0b;
+}
+
+.calendar-day-attendance.poor {
+    background: #ef4444;
+}
+
+/* Calendar Actions - Centered Button */
+.calendar-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-primary-large {
+    padding: 16px 40px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary-large:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.btn-primary-large:active {
+    transform: translateY(0);
+}
+
+.btn-primary-large svg {
+    width: 20px;
+    height: 20px;
+}
+
+.week-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.week-nav-btn {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--border-color);
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.week-nav-btn:hover {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.week-nav-btn svg {
+    width: 20px;
+    height: 20px;
+    color: var(--text-primary);
+}
+
+.week-days {
+    display: flex;
+    gap: 12px;
+    background: white;
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+}
+
+.day-btn {
+    padding: 12px 20px;
+    background: var(--bg-color);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 60px;
+}
+
+.day-btn:hover {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.day-btn.active {
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
+    transform: scale(1.05);
+}
+
+.current-date {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+}
+
+/* ==================== LECTURES LIST ==================== */
+
+.lectures-container {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+.lectures-container h2 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.lectures-list {
+    display: grid;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.lecture-card {
+    background: var(--bg-color);
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 4px solid #10b981;
+    transition: all 0.2s;
+}
+
+.lecture-card:hover {
+    transform: translateX(4px);
+    box-shadow: var(--shadow-sm);
+}
+
+.lecture-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.lecture-info h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.lecture-time {
+    font-size: 14px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lecture-time svg {
+    width: 16px;
+    height: 16px;
+}
+
+.attendance-options {
+    display: flex;
+    gap: 12px;
+}
+
+.attendance-btn {
+    padding: 10px 20px;
+    border: 2px solid var(--border-color);
+    background: white;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.attendance-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.attendance-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.attendance-btn.present {
+    border-color: #10b981;
+    color: #10b981;
+}
+
+.attendance-btn.present.active {
+    background: #10b981;
+    color: white;
+}
+
+.attendance-btn.absent {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.attendance-btn.absent.active {
+    background: #ef4444;
+    color: white;
+}
+
+.attendance-btn.cancelled {
+    border-color: #f59e0b;
+    color: #f59e0b;
+}
+
+.attendance-btn.cancelled.active {
+    background: #f59e0b;
+    color: white;
+}
+
+/* ==================== QUICK ACTIONS ==================== */
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.action-btn {
+    padding: 16px 24px;
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: var(--shadow-sm);
+}
+
+.action-btn:hover {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.05);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.action-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* ==================== TIMETABLE MODAL ==================== */
+
+.lecture-form {
+    padding: 24px;
+    background: var(--bg-color);
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.lecture-form h3 {
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.form-info {
+    background: rgba(16, 185, 129, 0.1);
+    border-left: 4px solid #10b981;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.form-info strong {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.existing-timetable {
+    padding: 24px;
+    background: white;
+    border-radius: 12px;
+}
+
+.existing-timetable h3 {
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.timetable-info {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    padding: 8px 12px;
+    background: var(--bg-color);
+    border-radius: 6px;
+}
+
+.timetable-day-group {
+    margin-bottom: 24px;
+}
+
+.timetable-day-header {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.timetable-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    background: var(--bg-color);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.timetable-item-info {
+    flex: 1;
+}
+
+.timetable-subject {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.timetable-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.timetable-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon-small {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-icon-small:hover {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+.btn-icon-small:hover svg {
+    color: white;
+}
+
+.btn-icon-small svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-primary);
+}
+
+/* ==================== REPORTS ==================== */
+
+.report-week {
+    padding: 16px;
+    background: var(--bg-color);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    border-left: 4px solid #10b981;
+}
+
+.report-week-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.week-date-range {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.week-percentage {
+    font-size: 24px;
+    font-weight: 700;
+    color: #10b981;
+}
+
+.week-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    font-size: 13px;
+}
+
+.week-stat {
+    text-align: center;
+}
+
+.week-stat-value {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.week-stat-label {
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+
+.subject-card {
+    padding: 20px;
+    background: var(--bg-color);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.subject-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.subject-name-large {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.subject-percentage {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.subject-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.subject-stat {
+    text-align: center;
+    padding: 8px;
+    background: white;
+    border-radius: 8px;
+}
+
+.subject-stat-value {
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.subject-stat-label {
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+    .attendance-hero {
+        flex-direction: column;
+        padding: 24px;
+        gap: 32px;
+    }
+
+    .attendance-summary {
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .week-days {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .day-btn {
+        min-width: 50px;
+        padding: 10px 14px;
+    }
+
+    .attendance-options {
+        flex-direction: column;
+    }
+
+    .attendance-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .lecture-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .week-stats,
+    .subject-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

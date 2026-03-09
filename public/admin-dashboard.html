@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - PDF Management</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header admin-header">
+            <div class="header-content">
+                <h1>
+                    <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5"></path>
+                        <path d="M2 12l10 5 10-5"></path>
+                    </svg>
+                    Admin Control Panel
+                </h1>
+                <div class="header-actions">
+                    <span class="admin-badge">Administrator</span>
+                    <button class="btn-secondary" id="logoutBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main admin-main">
+            <!-- Tab Navigation -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="users">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    Manage Users
+                </button>
+                <button class="tab-btn" data-tab="pdfs">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    Manage PDFs
+                </button>
+            </div>
+
+            <!-- Users Tab Content -->
+            <div class="tab-content active" id="usersTab">
+                <div class="section-card">
+                    <h2>Add New User</h2>
+                    <form id="addUserForm" class="admin-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="mobileNumber">Mobile Number (10 digits)</label>
+                                <input 
+                                    type="text" 
+                                    id="mobileNumber" 
+                                    placeholder="e.g., 9876543210"
+                                    maxlength="10"
+                                    pattern="\d{10}"
+                                    required
+                                >
+                                <small>Password will be the first 4 digits</small>
+                            </div>
+                            <button type="submit" class="btn-primary">Add User</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="section-card">
+                    <h2>Registered Users</h2>
+                    <div id="usersList" class="data-table-container">
+                        <div class="loading-state">
+                            <svg class="spinner" viewBox="0 0 24 24">
+                                <circle class="spinner-circle" cx="12" cy="12" r="10"></circle>
+                            </svg>
+                            <p>Loading users...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PDFs Tab Content -->
+            <div class="tab-content" id="pdfsTab">
+                <div class="section-card">
+                    <h2>Upload PDF</h2>
+                    <form id="uploadPdfForm" class="admin-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sectionName">Section Name</label>
+                                <input 
+                                    type="text" 
+                                    id="sectionName" 
+                                    placeholder="e.g., Study Materials, Reports"
+                                    list="existingSections"
+                                    required
+                                >
+                                <datalist id="existingSections"></datalist>
+                            </div>
+                            <div class="form-group">
+                                <label for="pdfFile">Select PDF File</label>
+                                <input 
+                                    type="file" 
+                                    id="pdfFile" 
+                                    accept=".pdf"
+                                    required
+                                >
+                            </div>
+                            <button type="submit" class="btn-primary" id="uploadBtn">
+                                <span class="btn-text">Upload PDF</span>
+                                <span class="btn-loader" style="display: none;">
+                                    <svg class="spinner" viewBox="0 0 24 24">
+                                        <circle class="spinner-circle" cx="12" cy="12" r="10"></circle>
+                                    </svg>
+                                </span>
+                            </button>
+                        </div>
+                        <div id="uploadProgress" class="upload-progress" style="display: none;">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p id="progressText">Uploading...</p>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="section-card">
+                    <h2>All PDFs</h2>
+                    <div id="pdfsList" class="data-table-container">
+                        <div class="loading-state">
+                            <svg class="spinner" viewBox="0 0 24 24">
+                                <circle class="spinner-circle" cx="12" cy="12" r="10"></circle>
+                            </svg>
+                            <p>Loading PDFs...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

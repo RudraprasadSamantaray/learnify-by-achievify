@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Viewer - Secure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #2b2b2b;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #1e1e1e;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #444;
+        }
+
+        .pdf-title {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .close-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .close-btn:hover {
+            background-color: #c82333;
+        }
+
+        .toolbar {
+            background-color: #2b2b2b;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid #444;
+        }
+
+        .menu-icon {
+            font-size: 20px;
+            cursor: pointer;
+            color: #e0e0e0;
+        }
+
+        .pdf-info {
+            font-size: 14px;
+            color: #e0e0e0;
+        }
+
+        .toolbar-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .toolbar-btn {
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .toolbar-btn:hover:not(:disabled) {
+            background-color: #3a3a3a;
+        }
+
+        .toolbar-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .zoom-display {
+            font-size: 14px;
+            color: #e0e0e0;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        /* ============================================ */
+        /* CRITICAL: HIDE ALL DOWNLOAD FUNCTIONALITY   */
+        /* ============================================ */
+        .toolbar-btn.download-btn,
+        button[title*="Download"],
+        button[title*="download"],
+        button[aria-label*="Download"],
+        button[aria-label*="download"],
+        a[download],
+        .download-icon,
+        #download-btn,
+        [class*="download"],
+        [id*="download"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            position: absolute !important;
+            left: -9999px !important;
+        }
+
+        .pdf-container {
+            width: 100%;
+            height: calc(100vh - 110px);
+            overflow: auto;
+            background-color: #525252;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        #pdf-canvas {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            background-color: white;
+            display: block;
+        }
+
+        .page-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-input {
+            background-color: #3a3a3a;
+            border: 1px solid #555;
+            color: #e0e0e0;
+            padding: 4px 8px;
+            width: 50px;
+            text-align: center;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        /* Disable text selection and right-click on PDF */
+        .pdf-container, 
+        #pdf-canvas {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            color: #e0e0e0;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid #444;
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Watermark overlay */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 60px;
+            color: rgba(255, 255, 255, 0.08);
+            pointer-events: none;
+            z-index: 9999;
+            white-space: nowrap;
+            font-weight: bold;
+            letter-spacing: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="pdf-title" id="pdf-title">PDF Viewer</div>
+        <button class="close-btn" onclick="closePDF()">Close</button>
+    </div>
+
+    <div class="toolbar">
+        <div class="menu-icon">☰</div>
+        <div class="pdf-info" id="pdf-doc-title">PDF Document Viewer</div>
+        
+        <div class="toolbar-controls">
+            <div class="page-controls">
+                <input type="number" class="page-input" id="currentPage" value="1" min="1" onchange="goToPage(this.value)">
+                <span class="pdf-info">/ <span id="totalPages">-</span></span>
+            </div>
+            
+            <button class="toolbar-btn" id="prevBtn" onclick="previousPage()" title="Previous page">←</button>
+            <button class="toolbar-btn" id="nextBtn" onclick="nextPage()" title="Next page">→</button>
+            
+            <button class="toolbar-btn" onclick="zoomOut()" title="Zoom out">−</button>
+            <div class="zoom-display" id="zoomLevel">100%</div>
+            <button class="toolbar-btn" onclick="zoomIn()" title="Zoom in">+</button>
+            
+            <button class="toolbar-btn" onclick="fitToPage()" title="Fit to page">⛶</button>
+            <button class="toolbar-btn" onclick="rotatePage()" title="Rotate">↻</button>
+            
+            <!-- Print and Download buttons hidden/disabled -->
+            <button class="toolbar-btn" onclick="showDisabledMessage('print')" title="Print disabled">🖨</button>
+            
+            <button class="toolbar-btn" title="More options">⋮</button>
+        </div>
+    </div>
+
+    <div class="pdf-container" id="pdf-container" oncontextmenu="return false;">
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>Loading PDF...</div>
+        </div>
+        <canvas id="pdf-canvas"></canvas>
+    </div>
+
+    <!-- Optional Watermark -->
+    <!-- <div class="watermark">CONFIDENTIAL</div> -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        // ============================================================
+        // SECURITY LAYER 1: Disable right-click and context menu
+        // ============================================================
+        document.addEventListener('contextmenu', event => {
+            event.preventDefault();
+            return false;
+        });
+
+        // ============================================================
+        // SECURITY LAYER 2: Disable keyboard shortcuts
+        // ============================================================
+        document.addEventListener('keydown', function(e) {
+            // Disable Ctrl+S / Cmd+S (Save)
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+            
+            // Disable Ctrl+P / Cmd+P (Print)
+            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+            
+            // Disable F12 (Developer Tools)
+            if (e.key === 'F12') {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Disable Ctrl+Shift+I / Cmd+Option+I (Inspector)
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'I') {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Disable Ctrl+Shift+J / Cmd+Option+J (Console)
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'J') {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Disable Ctrl+U / Cmd+U (View Source)
+            if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
+                e.preventDefault();
+                return false;
+            }
+        }, true);
+
+        // ============================================================
+        // SECURITY LAYER 3: Detect and clear developer tools
+        // ============================================================
+        let devToolsOpen = false;
+        const detectDevTools = () => {
+            const threshold = 160;
+            if (window.outerWidth - window.innerWidth > threshold || 
+                window.outerHeight - window.innerHeight > threshold) {
+                if (!devToolsOpen) {
+                    devToolsOpen = true;
+                    console.clear();
+                }
+            } else {
+                devToolsOpen = false;
+            }
+        };
+        setInterval(detectDevTools, 1000);
+
+        // ============================================================
+        // SECURITY LAYER 4: Disable text selection on body
+        // ============================================================
+        document.body.style.userSelect = 'none';
+        document.body.style.webkitUserSelect = 'none';
+        document.body.style.mozUserSelect = 'none';
+        document.body.style.msUserSelect = 'none';
+
+        // ============================================================
+        // PDF.JS CONFIGURATION
+        // ============================================================
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let currentPage = 1;
+        let totalPages = 0;
+        let zoomLevel = 1.0;
+        let rotation = 0;
+
+        // Get PDF ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const pdfId = urlParams.get('id');
+
+        if (!pdfId) {
+            document.getElementById('loading').innerHTML = '<div class="spinner"></div><div>Error: No PDF ID provided</div>';
+        } else {
+            loadPDF(pdfId);
+        }
+
+        // ============================================================
+        // PDF LOADING FUNCTION
+        // ============================================================
+        function loadPDF(id) {
+            const pdfUrl = `/api/user/pdf-stream/${id}`;
+            
+            // Use fetch with credentials to maintain session
+            fetch(pdfUrl, {
+                method: 'GET',
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/pdf'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load PDF');
+                }
+                return response.arrayBuffer();
+            })
+            .then(data => {
+                return pdfjsLib.getDocument({data: data}).promise;
+            })
+            .then(function(pdf) {
+                pdfDoc = pdf;
+                totalPages = pdf.numPages;
+                document.getElementById('totalPages').textContent = totalPages;
+                document.getElementById('currentPage').setAttribute('max', totalPages);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('pdf-title').textContent = 'PDF Document';
+                
+                renderPage(1);
+            })
+            .catch(function(error) {
+                console.error('Error loading PDF:', error);
+                document.getElementById('loading').innerHTML = 
+                    '<div>Error loading PDF</div><div style="font-size: 14px; margin-top: 10px;">Please check your connection and try again.</div>';
+            });
+        }
+
+        // ============================================================
+        // PDF RENDERING FUNCTION
+        // ============================================================
+        function renderPage(pageNum) {
+            if (!pdfDoc) return;
+            
+            const canvas = document.getElementById('pdf-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            pdfDoc.getPage(pageNum).then(function(page) {
+                const viewport = page.getViewport({ scale: zoomLevel, rotation: rotation });
+
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                
+                const renderTask = page.render(renderContext);
+                
+                renderTask.promise.then(function() {
+                    // Rendering complete
+                }).catch(function(error) {
+                    console.error('Render error:', error);
+                });
+            });
+            
+            // Update UI
+            currentPage = pageNum;
+            document.getElementById('currentPage').value = pageNum;
+            updateNavigationButtons();
+        }
+
+        // ============================================================
+        // NAVIGATION FUNCTIONS
+        // ============================================================
+        function previousPage() {
+            if (currentPage > 1) {
+                renderPage(currentPage - 1);
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                renderPage(currentPage + 1);
+            }
+        }
+
+        function goToPage(pageNum) {
+            const page = parseInt(pageNum);
+            if (page >= 1 && page <= totalPages) {
+                renderPage(page);
+            } else {
+                document.getElementById('currentPage').value = currentPage;
+            }
+        }
+
+        function updateNavigationButtons() {
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+        }
+
+        // ============================================================
+        // ZOOM FUNCTIONS
+        // ============================================================
+        function zoomIn() {
+            if (zoomLevel < 3.0) {
+                zoomLevel += 0.25;
+                updateZoomDisplay();
+                renderPage(currentPage);
+            }
+        }
+
+        function zoomOut() {
+            if (zoomLevel > 0.25) {
+                zoomLevel -= 0.25;
+                updateZoomDisplay();
+                renderPage(currentPage);
+            }
+        }
+
+        function updateZoomDisplay() {
+            document.getElementById('zoomLevel').textContent = Math.round(zoomLevel * 100) + '%';
+        }
+
+        function fitToPage() {
+            const container = document.getElementById('pdf-container');
+            const containerWidth = container.clientWidth - 40; // padding
+            const containerHeight = container.clientHeight - 40;
+            
+            if (!pdfDoc) return;
+            
+            pdfDoc.getPage(currentPage).then(function(page) {
+                const viewport = page.getViewport({ scale: 1, rotation: rotation });
+                const scaleWidth = containerWidth / viewport.width;
+                const scaleHeight = containerHeight / viewport.height;
+                zoomLevel = Math.min(scaleWidth, scaleHeight);
+                updateZoomDisplay();
+                renderPage(currentPage);
+            });
+        }
+
+        // ============================================================
+        // ROTATION FUNCTION
+        // ============================================================
+        function rotatePage() {
+            rotation = (rotation + 90) % 360;
+            renderPage(currentPage);
+        }
+
+        // ============================================================
+        // CLOSE FUNCTION
+        // ============================================================
+        function closePDF() {
+            // Check if there's a referrer (came from another page)
+            if (document.referrer && document.referrer.includes(window.location.host)) {
+                window.history.back();
+            } else {
+                // Default fallback - go to user dashboard or home
+                window.location.href = '/user-dashboard.html';
+            }
+        }
+
+        // ============================================================
+        // SHOW DISABLED MESSAGE
+        // ============================================================
+        function showDisabledMessage(action) {
+            alert(`${action.charAt(0).toUpperCase() + action.slice(1)} is disabled for this document.`);
+        }
+
+        // ============================================================
+        // SECURITY LAYER 5: Override window.print
+        // ============================================================
+        window.print = function() {
+            alert('Printing is disabled for this document.');
+            return false;
+        };
+
+        // ============================================================
+        // SECURITY LAYER 6: Disable drag and drop
+        // ============================================================
+        document.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // ============================================================
+        // SECURITY LAYER 7: Monitor for screenshot attempts (limited)
+        // ============================================================
+        document.addEventListener('keyup', function(e) {
+            // Print Screen key
+            if (e.key === 'PrintScreen') {
+                navigator.clipboard.writeText('');
+                alert('Screenshots are not permitted for this document.');
+            }
+        });
+
+        // ============================================================
+        // OPTIONAL: Add watermark with user identification
+        // ============================================================
+        function addWatermark(text = 'CONFIDENTIAL - VIEW ONLY') {
+            const watermark = document.createElement('div');
+            watermark.className = 'watermark';
+            watermark.textContent = text;
+            document.body.appendChild(watermark);
+        }
+
+        // Uncomment to enable watermark
+        // addWatermark();
+
+        // ============================================================
+        // SECURITY LAYER 8: Disable copy events
+        // ============================================================
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        document.addEventListener('cut', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // ============================================================
+        // PAGE VISIBILITY: Pause when tab is not visible
+        // ============================================================
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // Tab is hidden - could log this
+                console.log('User switched away from PDF viewer');
+            }
+        });
+
+        // ============================================================
+        // INITIALIZATION COMPLETE
+        // ============================================================
+        console.log('Secure PDF Viewer initialized');
+        console.log('Download: DISABLED');
+        console.log('Print: DISABLED');
+        console.log('Right-click: DISABLED');
+        console.log('Keyboard shortcuts: DISABLED');
+    </script>
+</body>
+</html>

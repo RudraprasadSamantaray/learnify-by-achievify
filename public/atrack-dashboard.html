@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATrack - Attendance Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/atrack.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header atrack-header">
+            <div class="header-content">
+                <h1>
+                    <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                        <line x1="8" y1="14" x2="8" y2="14.01"></line>
+                        <line x1="12" y1="14" x2="12" y2="14.01"></line>
+                        <line x1="16" y1="14" x2="16" y2="14.01"></line>
+                        <line x1="8" y1="18" x2="8" y2="18.01"></line>
+                        <line x1="12" y1="18" x2="12" y2="18.01"></line>
+                        <line x1="16" y1="18" x2="16" y2="18.01"></line>
+                    </svg>
+                    ATrack - Attendance Tracker
+                </h1>
+                <div class="header-actions">
+                    <button class="btn-nav-link" onclick="window.location.href='user-dashboard.html'">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        PDFs
+                    </button>
+                    <button class="btn-nav-link" onclick="window.location.href='study-dashboard.html'">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                        </svg>
+                        Study
+                    </button>
+                    <span class="user-badge" id="userInfo">Loading...</span>
+                    <button class="btn-secondary" id="logoutBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main atrack-main">
+            <!-- Overall Attendance -->
+            <div class="attendance-hero">
+                <div class="attendance-circle">
+                    <svg class="progress-ring" width="200" height="200">
+                        <circle class="progress-ring-bg" cx="100" cy="100" r="85" />
+                        <circle class="progress-ring-fill" id="progressCircle" cx="100" cy="100" r="85" />
+                    </svg>
+                    <div class="attendance-percentage">
+                        <div class="percentage-value" id="overallPercentage">0%</div>
+                        <div class="percentage-label">Overall Attendance</div>
+                    </div>
+                </div>
+                
+                <div class="attendance-summary">
+                    <div class="summary-item">
+                        <div class="summary-value" id="totalLectures">0</div>
+                        <div class="summary-label">Total Lectures</div>
+                    </div>
+                    <div class="summary-item present">
+                        <div class="summary-value" id="presentCount">0</div>
+                        <div class="summary-label">Present</div>
+                    </div>
+                    <div class="summary-item absent">
+                        <div class="summary-value" id="absentCount">0</div>
+                        <div class="summary-label">Absent</div>
+                    </div>
+                    <div class="summary-item cancelled">
+                        <div class="summary-value" id="cancelledCount">0</div>
+                        <div class="summary-label">Cancelled</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar Section -->
+            <div class="calendar-section">
+                <div class="section-header-row">
+                    <h2>Attendance Calendar</h2>
+                    <div class="month-navigator">
+                        <button class="btn-icon" id="prevMonth">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
+                        </button>
+                        <span id="currentMonthYear">January 2026</span>
+                        <button class="btn-icon" id="nextMonth">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="attendanceCalendar" class="attendance-calendar"></div>
+                
+                <!-- Add/Edit Timetable Button - Centered below calendar -->
+                <div class="calendar-actions">
+                    <button class="btn-primary-large" id="editTimetableBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        Add / Edit Timetable
+                    </button>
+                </div>
+            </div>
+
+            <!-- Week Selector (kept for quick navigation) -->
+            <div class="week-selector">
+                <button class="week-nav-btn" id="prevWeek">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <div class="week-days" id="weekDays">
+                    <button class="day-btn active" data-day="monday">MON</button>
+                    <button class="day-btn" data-day="tuesday">TUE</button>
+                    <button class="day-btn" data-day="wednesday">WED</button>
+                    <button class="day-btn" data-day="thursday">THU</button>
+                    <button class="day-btn" data-day="friday">FRI</button>
+                    <button class="day-btn" data-day="saturday">SAT</button>
+                </div>
+                <button class="week-nav-btn" id="nextWeek">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Current Date Display -->
+            <div class="current-date" id="currentDate">Monday, February 12, 2026</div>
+
+            <!-- Lectures List -->
+            <div class="lectures-container">
+                <div class="section-header-row">
+                    <h2>Today's Lectures</h2>
+                </div>
+                
+                <div id="lecturesList" class="lectures-list">
+                    <div class="loading-state">
+                        <svg class="spinner" viewBox="0 0 24 24">
+                            <circle class="spinner-circle" cx="12" cy="12" r="10"></circle>
+                        </svg>
+                        <p>Loading lectures...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button class="action-btn" id="viewWeeklyReport">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="20" x2="12" y2="10"></line>
+                        <line x1="18" y1="20" x2="18" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="16"></line>
+                    </svg>
+                    View Weekly Report
+                </button>
+                <button class="action-btn" id="viewSubjectWise">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                    </svg>
+                    Subject-wise Attendance
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Timetable Modal -->
+    <div id="timetableModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manage Timetable</h2>
+                <button class="close-btn" onclick="closeTimetableModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addLectureForm" class="lecture-form">
+                    <h3>Add New Lecture</h3>
+                    <p class="form-info">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline; vertical-align: middle;">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        Lectures added here will <strong>repeat every week</strong> on the selected day.
+                    </p>
+                    <div class="form-grid">
+                        <select id="lectureDay" required>
+                            <option value="">Select Day *</option>
+                            <option value="monday">Monday</option>
+                            <option value="tuesday">Tuesday</option>
+                            <option value="wednesday">Wednesday</option>
+                            <option value="thursday">Thursday</option>
+                            <option value="friday">Friday</option>
+                            <option value="saturday">Saturday</option>
+                        </select>
+                        <input type="text" id="lectureSubject" placeholder="Subject Name *" required>
+                        <input type="time" id="lectureStartTime" placeholder="Start Time *" required>
+                        <input type="time" id="lectureEndTime" placeholder="End Time *" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Add Lecture (Repeats Weekly)</button>
+                </form>
+
+                <div class="existing-timetable">
+                    <h3>Current Timetable (Weekly Recurring)</h3>
+                    <p class="timetable-info">
+                        These lectures automatically appear every week on their scheduled day.
+                    </p>
+                    <div id="timetableList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Report Modal -->
+    <div id="weeklyReportModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Weekly Attendance Report</h2>
+                <button class="close-btn" onclick="closeWeeklyReportModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="weeklyReportContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject-wise Modal -->
+    <div id="subjectWiseModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Subject-wise Attendance</h2>
+                <button class="close-btn" onclick="closeSubjectWiseModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="subjectWiseContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="js/atrack.js"></script>
+</body>
+</html>
