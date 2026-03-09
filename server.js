@@ -9,7 +9,7 @@ const fs = require('fs');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
@@ -26,7 +26,7 @@ app.use(fileUpload({
 }));
 
 app.use(session({
-    secret: 'pdf-management-secret-key-2026',
+    secret: process.env.SESSION_SECRET || 'pdf-management-secret-key-2026',
     resave: false,
     saveUninitialized: false,
     cookie: { 
@@ -35,21 +35,20 @@ app.use(session({
     }
 }));
 
-// MySQL Connection - PDF Management
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'daitari@12584', 
-    database: 'pdf_management_system'
-});
+// Single Railway MySQL connection (shared for both pdf & study management)
+const dbConfig = {
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT) || 3306,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME || 'railway',
+    ssl: { rejectUnauthorized: false }
+};
 
-// MySQL Connection - Study Management
-const studyDb = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'daitari@12584', // CHANGE THIS
-    database: 'study_management'
-});
+const db = mysql.createConnection(dbConfig);
+
+// studyDb points to same Railway database
+const studyDb = mysql.createConnection(dbConfig);
 
 db.connect((err) => {
     if (err) {
