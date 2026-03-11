@@ -116,29 +116,20 @@ document.querySelectorAll('.timer-mode-btn').forEach(btn => {
 });
 
 // Start timer
-document.getElementById('startTimer').addEventListener('click', async () => {
-    const subjectId = document.getElementById('pomodoroSubject').value || null;
-    
-    // Start session in database
+document.getElementById("startTimer").addEventListener("click", async () => {
+    // Start timer immediately
+    startTimer();
+    const subjectId = document.getElementById("pomodoroSubject").value || null;
     try {
-        const response = await fetch('/api/study/pomodoro/start', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                subject_id: subjectId,
-                duration_minutes: timerDuration / 60,
-                session_type: timerType
-            })
+        const response = await fetch("/api/study/pomodoro/start", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ subject_id: subjectId, duration_minutes: timerDuration / 60, session_type: timerType })
         });
-        
         const data = await response.json();
-        if (data.success) {
-            currentSessionId = data.session_id;
-            startTimer();
-        }
+        if (data.success) currentSessionId = data.session_id;
     } catch (error) {
-        console.error('Start session error:', error);
-        startTimer(); // Start anyway
+        console.error("Start session error (timer still running):", error);
     }
 });
 
